@@ -8,5 +8,3 @@ Conversion of a MATLAB Newton Method code for Hexapod Forward Kinematics to C us
 # Possible Advances:
 
 * Use a Lapacke solver to solve the Newton Method Linear system instead of a separated Inversion and Multiplication.
-
-* Use ptr for the matrix definitions instead of redefine inside the while loop.
