@@ -72,7 +72,7 @@ def mov_vector_between(Origin_1, Origin_2, Vec_1, Vec_2):
 
 ####################################################################################################################################
 
-def constructFaces(cX, cY, cZ, radius, max_theta, H, direc, angle):
+def constructFaces(cX, cY, cZ, radius, max_theta, H, angle):
     
     # Draw Faces:
     x = np.array([])
@@ -89,33 +89,24 @@ def constructFaces(cX, cY, cZ, radius, max_theta, H, direc, angle):
             
     z = np.ones_like(x)*(H)
     
-    if (direc == 1):
-        RX, RY, RZ = (0, 0, 0)
+    RX, RY, RZ = (90, 0, 0)
         
-    if (direc == -1):
-        RX, RY, RZ = (90, 0, 0)
-        
-    # Rotate Cylinder with Angle(RX,RY,RZ):
-        
-    for i in range(x.shape[0]):
-        x[i], y[i], z[i] = Rot(RX, RY, RZ).dot(np.array([x[i], y[i], z[i]]))
-        
-    x = x + cX
-    y = y + cY
-    z = z + cZ
-    
     if (angle !=0):
         
         RX, RY, RZ = angle
         
         for i in range(x.shape[0]):
             x[i], y[i], z[i] = Rot(RX, RY, RZ).dot(np.array([x[i], y[i], z[i]]))
+        
+    x = x + cX
+    y = y + cY
+    z = z + cZ
     
     return x, y, z
 
 ####################################################################################################################################
 
-def drawCylinder(ax, cX, cY, cZ, radius, height, direc = 1, angle = (0,0,0)):
+def drawCylinder(ax, cX, cY, cZ, radius, height, angle = (0,0,0)):
     
     z = np.linspace(0, height, 16)
     theta = np.linspace(0, 2*np.pi, 16)
@@ -125,21 +116,6 @@ def drawCylinder(ax, cX, cY, cZ, radius, height, direc = 1, angle = (0,0,0)):
     y_grid = radius*np.sin(theta_grid)
     z_grid = z_grid - height/2
     
-    if (direc == 1):
-        RX, RY, RZ = (0, 0, 0)
-        
-    if (direc == -1):
-        RX, RY, RZ = (90, 0, 0)
-            
-    # Rotate Cylinder with Angle(RX,RY,RZ):
-    for i in range(z_grid.shape[0]):
-        for j in range(z_grid.shape[0]):
-            x_grid[i][j], y_grid[i][j], z_grid[i][j] = Rot(RX, RY, RZ).dot(np.array([x_grid[i][j], y_grid[i][j], z_grid[i][j]]))
-    
-    x_grid = x_grid + cX
-    y_grid = y_grid + cY
-    z_grid = z_grid + cZ
-   
     if (angle !=0):
         
         RX, RY, RZ = angle
@@ -148,16 +124,20 @@ def drawCylinder(ax, cX, cY, cZ, radius, height, direc = 1, angle = (0,0,0)):
         for i in range(z_grid.shape[0]):
             for j in range(z_grid.shape[0]):
                 x_grid[i][j], y_grid[i][j], z_grid[i][j] = Rot(RX, RY, RZ).dot(np.array([x_grid[i][j], y_grid[i][j], z_grid[i][j]]))
+    
+    x_grid = x_grid + cX
+    y_grid = y_grid + cY
+    z_grid = z_grid + cZ
 
     ##################################################################################################################        
     
-    xUp, yUp, zUp = constructFaces(cX, cY, cZ, radius, 360, height/2, direc, angle)
-    xDown, yDown, zDown = constructFaces(cX, cY, cZ, radius, 360, -height/2, direc, angle)
+    xUp, yUp, zUp = constructFaces(cX, cY, cZ, radius, 360, height/2, angle)
+    xDown, yDown, zDown = constructFaces(cX, cY, cZ, radius, 360, -height/2, angle)
     
     ax.plot(xUp, yUp, zUp, alpha = 0.5, color='blue')
     ax.plot(xDown, yDown, zDown, alpha = 0.5, color = 'blue')
     
-    movX, movY, movZ = constructFaces(cX, cY, cZ, radius, 45, height/2, direc, angle)
+    movX, movY, movZ = constructFaces(cX, cY, cZ, radius, 45, height/2, angle)
     ax.plot(movX, movY, movZ, alpha = 1, color = 'white')
     
     ##################################################################################################################
@@ -183,10 +163,10 @@ def drawCube(ax, cX, cY, cZ, L, angle, color='black', rec=1):
                 x = np.concatenate((x, X))
                 y = np.concatenate((y, Y))
                 z = np.concatenate((z, Z))
-                        
-    x = x + cX - L/2
-    y = y + cY - L/2
-    z = z + cZ - L/2
+                
+    x = x -L/2
+    y = y -L/2
+    z = z -L/2
     
     if (angle !=0):
         
@@ -194,6 +174,10 @@ def drawCube(ax, cX, cY, cZ, L, angle, color='black', rec=1):
         
         for i in range(x.shape[0]):
             x[i], y[i], z[i] = Rot(RX, RY, RZ).dot(np.array([x[i], y[i], z[i]]))
+            
+    x = x + cX
+    y = y + cY
+    z = z + cZ
     
     ax.plot(x, y, z, alpha = 0.9, color = color)
         
@@ -203,9 +187,9 @@ def drawCube(ax, cX, cY, cZ, L, angle, color='black', rec=1):
 ####################################################################################################################################
 def drawFrameAxis(ax, cX, cY, cZ, direc, angle):
     
-    RX, RY, RZ = angle
+    framePos = np.array([cX, cY, cZ])
     
-    framePos = Rot(RX, RY, RZ).dot(np.array([cX,cY,cZ]))
+    RX, RY, RZ = angle
     
     baseX = np.array([30,0,0])
     baseY = np.array([0,30,0])
