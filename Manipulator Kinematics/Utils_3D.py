@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import mpl_toolkits.mplot3d.art3d as art3d
 import numpy as np
+import operator
 
 ####################################################################################################################################
 def Rot(thetaRX, thetaRY, thetaRZ):
@@ -72,7 +73,7 @@ def mov_vector_between(Origin_1, Origin_2, Vec_1, Vec_2):
 
 ####################################################################################################################################
 
-def constructFaces(cX, cY, cZ, radius, max_theta, H, angle):
+def constructFaces(cX, cY, cZ, radius, max_theta, H, orientation, angle):
     
     # Draw Faces:
     x = np.array([])
@@ -89,7 +90,10 @@ def constructFaces(cX, cY, cZ, radius, max_theta, H, angle):
             
     z = np.ones_like(x)*(H)
     
-    RX, RY, RZ = (90, 0, 0)
+    RX, RY, RZ = orientation
+        
+    for i in range(x.shape[0]):
+        x[i], y[i], z[i] = Rot(RX, RY, RZ).dot(np.array([x[i], y[i], z[i]]))
         
     if (angle !=0):
         
@@ -106,7 +110,7 @@ def constructFaces(cX, cY, cZ, radius, max_theta, H, angle):
 
 ####################################################################################################################################
 
-def drawCylinder(ax, cX, cY, cZ, radius, height, angle = (0,0,0)):
+def drawCylinder(ax, cX, cY, cZ, radius, height, orientation = (0,0,0), angle = (0,0,0)):
     
     z = np.linspace(0, height, 16)
     theta = np.linspace(0, 2*np.pi, 16)
@@ -115,6 +119,13 @@ def drawCylinder(ax, cX, cY, cZ, radius, height, angle = (0,0,0)):
     x_grid = radius*np.cos(theta_grid)
     y_grid = radius*np.sin(theta_grid)
     z_grid = z_grid - height/2
+    
+    RX, RY, RZ = orientation
+        
+    # Rotate Cylinder with Angle(RX,RY,RZ):
+    for i in range(z_grid.shape[0]):
+        for j in range(z_grid.shape[0]):
+            x_grid[i][j], y_grid[i][j], z_grid[i][j] = Rot(RX, RY, RZ).dot(np.array([x_grid[i][j], y_grid[i][j], z_grid[i][j]]))
     
     if (angle !=0):
         
@@ -131,13 +142,13 @@ def drawCylinder(ax, cX, cY, cZ, radius, height, angle = (0,0,0)):
 
     ##################################################################################################################        
     
-    xUp, yUp, zUp = constructFaces(cX, cY, cZ, radius, 360, height/2, angle)
-    xDown, yDown, zDown = constructFaces(cX, cY, cZ, radius, 360, -height/2, angle)
+    xUp, yUp, zUp = constructFaces(cX, cY, cZ, radius, 360, height/2, orientation, angle)
+    xDown, yDown, zDown = constructFaces(cX, cY, cZ, radius, 360, -height/2, orientation, angle)
     
     ax.plot(xUp, yUp, zUp, alpha = 0.5, color='blue')
     ax.plot(xDown, yDown, zDown, alpha = 0.5, color = 'blue')
     
-    movX, movY, movZ = constructFaces(cX, cY, cZ, radius, 45, height/2, angle)
+    movX, movY, movZ = constructFaces(cX, cY, cZ, radius, 45, height/2, orientation, angle)
     ax.plot(movX, movY, movZ, alpha = 1, color = 'white')
     
     ##################################################################################################################
@@ -185,21 +196,21 @@ def drawCube(ax, cX, cY, cZ, L, angle, color='black', rec=1):
         drawCube(ax, cX, cY, cZ, L-4, angle, color='blue', rec=0)
         
 ####################################################################################################################################
-def drawFrameAxis(ax, cX, cY, cZ, direc, angle):
+def drawFrameAxis(ax, cX, cY, cZ, orientation, angle):
     
     framePos = np.array([cX, cY, cZ])
     
-    RX, RY, RZ = angle
+    RX, RY, RZ = orientation
     
     baseX = np.array([30,0,0])
     baseY = np.array([0,30,0])
     baseZ = np.array([0,0,30])
     
-    if (direc == -1):
-        
-        baseX = Rot(90, 0, 0).dot(baseX)
-        baseY = Rot(90, 0, 0).dot(baseY)
-        baseZ = Rot(90, 0, 0).dot(baseZ)
+    baseX = Rot(RX, RY, RZ).dot(baseX)
+    baseY = Rot(RX, RY, RZ).dot(baseY)
+    baseZ = Rot(RX, RY, RZ).dot(baseZ)
+    
+    RX, RY, RZ = angle
     
     frame_axisX = Rot(RX, RY, RZ).dot(baseX)
     frame_axisY = Rot(RX, RY, RZ).dot(baseY)
@@ -213,7 +224,7 @@ def drawFrameAxis(ax, cX, cY, cZ, direc, angle):
     ax.quiver(XaxisY, YaxisY, ZaxisY, UaxisY, VaxisY, WaxisY, arrow_length_ratio = 0.2, color='g')
     ax.quiver(XaxisZ, YaxisZ, ZaxisZ, UaxisZ, VaxisZ, WaxisZ, arrow_length_ratio = 0.2, color='b')
     
-     # Platform Axis Text:
+    # Platform Axis Text:
     zdir = (0,0,0)
 
     (x_x, x_y, x_z) = framePos + Rot(RX, RY, RZ).dot(frame_axisX)
