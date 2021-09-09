@@ -95,7 +95,7 @@ def constructFaces(cX, cY, cZ, radius, max_theta, H, orientation, angle):
     for i in range(x.shape[0]):
         x[i], y[i], z[i] = Rot(RX, RY, RZ).dot(np.array([x[i], y[i], z[i]]))
         
-    if (angle !=0):
+    if (angle != (0,0,0)):
         
         RX, RY, RZ = angle
         
@@ -110,7 +110,7 @@ def constructFaces(cX, cY, cZ, radius, max_theta, H, orientation, angle):
 
 ####################################################################################################################################
 
-def drawCylinder(ax, cX, cY, cZ, radius, height, orientation = (0,0,0), angle = (0,0,0)):
+def drawCylinder(ax, cX, cY, cZ, radius, height, orientation, angle):
     
     z = np.linspace(0, height, 16)
     theta = np.linspace(0, 2*np.pi, 16)
@@ -126,8 +126,8 @@ def drawCylinder(ax, cX, cY, cZ, radius, height, orientation = (0,0,0), angle = 
     for i in range(z_grid.shape[0]):
         for j in range(z_grid.shape[0]):
             x_grid[i][j], y_grid[i][j], z_grid[i][j] = Rot(RX, RY, RZ).dot(np.array([x_grid[i][j], y_grid[i][j], z_grid[i][j]]))
-    
-    if (angle !=0):
+            
+    if (angle != (0,0,0)):
         
         RX, RY, RZ = angle
         
@@ -178,8 +178,8 @@ def drawCube(ax, cX, cY, cZ, L, angle, color='black', rec=1):
     x = x -L/2
     y = y -L/2
     z = z -L/2
-    
-    if (angle !=0):
+        
+    if (angle !=(0,0,0)):
         
         RX, RY, RZ = angle
         
@@ -224,15 +224,5 @@ def drawFrameAxis(ax, cX, cY, cZ, orientation, angle):
     ax.quiver(XaxisY, YaxisY, ZaxisY, UaxisY, VaxisY, WaxisY, arrow_length_ratio = 0.2, color='g')
     ax.quiver(XaxisZ, YaxisZ, ZaxisZ, UaxisZ, VaxisZ, WaxisZ, arrow_length_ratio = 0.2, color='b')
     
-    # Platform Axis Text:
-    zdir = (0,0,0)
-
-    (x_x, x_y, x_z) = framePos + Rot(RX, RY, RZ).dot(frame_axisX)
-    (y_x, y_y, y_z) = framePos + Rot(RX, RY, RZ).dot(frame_axisY)
-    (z_x, z_y, z_z) = framePos + Rot(RX, RY, RZ).dot(frame_axisZ)
-
-    ax.text(x_x, x_y, x_z, 'x`', zdir, color='r')
-    ax.text(y_x, y_y, y_z, 'y`', zdir, color='g')
-    ax.text(z_x, z_y, z_z, 'z`', zdir, color='b')
     
 
