@@ -1,9 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
-
-
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import mpl_toolkits.mplot3d.art3d as art3d
@@ -13,16 +7,9 @@ import numpy as np
 import cv2
 import operator
 
-
-# In[2]:
-
-
 import Utils_3D as Ut3D
 
-
-# In[ ]:
-
-
+####################################################################################################################
 def linkDirection(orientation, link_length):
     
     if (orientation == (0,0,0)):
@@ -52,9 +39,7 @@ def linkDirection(orientation, link_length):
     
     return link_array
 
-
-# In[ ]:
-
+####################################################################################################################
 
 def mov_dir(orientation, angle):
     
@@ -85,9 +70,7 @@ def mov_dir(orientation, angle):
     
     return mov_angle
 
-
-# In[47]:
-
+####################################################################################################################
 
 def drawLink(ax, x1, y1, z1, link_length, joint_type, orientation, movement_angle):
     
@@ -108,9 +91,7 @@ def drawLink(ax, x1, y1, z1, link_length, joint_type, orientation, movement_angl
     
     return x2, y2, z2
 
-
-# In[6]:
-
+####################################################################################################################
 
 def kinematics_diagram(ax, frame_list):
     
@@ -147,15 +128,24 @@ def kinematics_diagram(ax, frame_list):
         
     ############################################################################################################
     
-    for n, frame in enumerate(frame_list):    
-
+    for n, frame in enumerate(frame_list):
+        
         previous_mov_angle = (movement_angle[0], movement_angle[1], movement_angle[2])
-                
-        if (n > 0):
+        previous_orientation = (orientation[0], orientation[1], orientation[2])
+            
+        print(n+1, 'Previous Move', previous_mov_angle)
                         
+        if (n > 0):
+                                    
             orientation = frame[1]
             movement_angle = mov_dir(orientation, frame[2])
-            movement_angle = tuple(map(operator.add, movement_angle, previous_mov_angle))
+            
+            print(n+1, 'Own Move', movement_angle)
+                        
+            movement_angle = tuple(map(operator.add, movement_angle, previous_mov_angle))                
+                                                                            
+            print(n+1, 'Sum Move', movement_angle)
+            print('------------------------------------------')
                                                                                                 
             if frame[3] == 'Revolute Joint':
         
