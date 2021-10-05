@@ -261,13 +261,13 @@ def drawFrameAxis(ax, cX, cY, cZ, orientation, self_angle, previous_angle):
     
     RX, RY, RZ = previous_angle
     
-    frame_axisX = Rot(RX, RY, RZ).dot(baseX)
-    frame_axisY = Rot(RX, RY, RZ).dot(baseY)
-    frame_axisZ = Rot(RX, RY, RZ).dot(baseZ)
+    baseX = Rot(RX, RY, RZ).dot(baseX)
+    baseY = Rot(RX, RY, RZ).dot(baseY)
+    baseZ = Rot(RX, RY, RZ).dot(baseZ)
     
-    XaxisX, YaxisX, ZaxisX, UaxisX, VaxisX, WaxisX = vec_to_quiver(framePos, frame_axisX)
-    XaxisY, YaxisY, ZaxisY, UaxisY, VaxisY, WaxisY = vec_to_quiver(framePos, frame_axisY)
-    XaxisZ, YaxisZ, ZaxisZ, UaxisZ, VaxisZ, WaxisZ = vec_to_quiver(framePos, frame_axisZ)
+    XaxisX, YaxisX, ZaxisX, UaxisX, VaxisX, WaxisX = vec_to_quiver(framePos, baseX)
+    XaxisY, YaxisY, ZaxisY, UaxisY, VaxisY, WaxisY = vec_to_quiver(framePos, baseY)
+    XaxisZ, YaxisZ, ZaxisZ, UaxisZ, VaxisZ, WaxisZ = vec_to_quiver(framePos, baseZ)
 
     ax.quiver(XaxisX, YaxisX, ZaxisX, UaxisX, VaxisX, WaxisX, arrow_length_ratio = 0.2, color='r')
     ax.quiver(XaxisY, YaxisY, ZaxisY, UaxisY, VaxisY, WaxisY, arrow_length_ratio = 0.2, color='g')
@@ -344,6 +344,8 @@ def kinematics_diagram(ax, frame_list):
     
     x, y, z = frameOne[0], frameOne[1], frameOne[2]
     
+    ax.text(x, y, z, 'Frame 1', (0,0,0))
+
     if frameOne[5] == 'Revolute Joint':
         
         radius = 10
@@ -364,6 +366,9 @@ def kinematics_diagram(ax, frame_list):
         
     link_length = frameOne[6]
     x, y, z = drawLink(ax, x, y, z, link_length, frameOne[5], orientation, self_angle, previous_angle)
+    
+    if (len(frame_list) > 1):
+        ax.text(x, y, z, 'Frame 2', (0,0,0))
             
     ############################################################################################################
         
@@ -373,10 +378,10 @@ def kinematics_diagram(ax, frame_list):
             
             previous_angle_add = mov_dir(orientation, self_angle)
             previous_angle = tuple(map(operator.add, previous_angle_add, previous_angle))
-                                
+                                            
             orientation = frame[1]
             self_angle = frame[2]
-                                                                                                                                                                                         
+                                                                                                                                        
             if frame[3] == 'Revolute Joint':
         
                 radius = 10
@@ -397,6 +402,12 @@ def kinematics_diagram(ax, frame_list):
                 
             link_length = frame[0]
             x, y, z = drawLink(ax, x, y, z, link_length, frame[3], orientation, self_angle, previous_angle)
+            
+        if (n + 1 < len(frame_list)):
+            ax.text(x, y, z, 'Frame {}'.format(n+2), (0,0,0))
+                
+        if (n + 1 == len(frame_list)):
+            ax.text(x, y, z, 'End Effector', (0,0,0))
             
     return x, y, z
 
