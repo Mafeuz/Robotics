@@ -130,10 +130,12 @@ def constructFaces(cX, cY, cZ, radius, max_theta, H, orientation, self_angle, pr
     for i in range(x.shape[0]):
         x[i], y[i], z[i] = Rot(RX, RY, RZ).dot(np.array([x[i], y[i], z[i]]))
         
-    RX, RY, RZ = previous_angle
+    for angle in previous_angle:
         
-    for i in range(x.shape[0]):
-        x[i], y[i], z[i] = Rot(RX, RY, RZ).dot(np.array([x[i], y[i], z[i]]))
+        RX, RY, RZ = angle
+        
+        for i in range(x.shape[0]):
+            x[i], y[i], z[i] = Rot(RX, RY, RZ).dot(np.array([x[i], y[i], z[i]]))
         
     x = x + cX
     y = y + cY
@@ -166,11 +168,13 @@ def drawCylinder(ax, cX, cY, cZ, radius, height, orientation, self_angle, previo
         for j in range(z_grid.shape[0]):
             x_grid[i][j], y_grid[i][j], z_grid[i][j] = Rot(RX, RY, RZ).dot(np.array([x_grid[i][j], y_grid[i][j], z_grid[i][j]]))
             
-    RX, RY, RZ = previous_angle
-        
-    for i in range(z_grid.shape[0]):
-        for j in range(z_grid.shape[0]):
-            x_grid[i][j], y_grid[i][j], z_grid[i][j] = Rot(RX, RY, RZ).dot(np.array([x_grid[i][j], y_grid[i][j], z_grid[i][j]]))
+    for angle in previous_angle:
+                    
+        RX, RY, RZ = angle
+
+        for i in range(z_grid.shape[0]):
+            for j in range(z_grid.shape[0]):
+                x_grid[i][j], y_grid[i][j], z_grid[i][j] = Rot(RX, RY, RZ).dot(np.array([x_grid[i][j], y_grid[i][j], z_grid[i][j]]))
     
     x_grid = x_grid + cX
     y_grid = y_grid + cY
@@ -222,11 +226,14 @@ def drawCube(ax, cX, cY, cZ, L, orientation, self_angle, previous_angle, color='
     for i in range(x.shape[0]):
         x[i], y[i], z[i] = Rot(RX, RY, RZ).dot(np.array([x[i], y[i], z[i]]))
             
-    RX, RY, RZ = previous_angle
+
+    for angle in previous_angle:
         
-    for i in range(x.shape[0]):
-        x[i], y[i], z[i] = Rot(RX, RY, RZ).dot(np.array([x[i], y[i], z[i]]))
-                                
+        RX, RY, RZ = angle     
+        
+        for i in range(x.shape[0]):
+            x[i], y[i], z[i] = Rot(RX, RY, RZ).dot(np.array([x[i], y[i], z[i]]))
+
     x = x + cX
     y = y + cY
     z = z + cZ
@@ -259,11 +266,13 @@ def drawFrameAxis(ax, cX, cY, cZ, orientation, self_angle, previous_angle):
     baseY = Rot(RX, RY, RZ).dot(baseY)
     baseZ = Rot(RX, RY, RZ).dot(baseZ)
     
-    RX, RY, RZ = previous_angle
+    for angle in previous_angle:
+        
+        RX, RY, RZ = angle
     
-    baseX = Rot(RX, RY, RZ).dot(baseX)
-    baseY = Rot(RX, RY, RZ).dot(baseY)
-    baseZ = Rot(RX, RY, RZ).dot(baseZ)
+        baseX = Rot(RX, RY, RZ).dot(baseX)
+        baseY = Rot(RX, RY, RZ).dot(baseY)
+        baseZ = Rot(RX, RY, RZ).dot(baseZ)
     
     XaxisX, YaxisX, ZaxisX, UaxisX, VaxisX, WaxisX = vec_to_quiver(framePos, baseX)
     XaxisY, YaxisY, ZaxisY, UaxisY, VaxisY, WaxisY = vec_to_quiver(framePos, baseY)
@@ -314,8 +323,12 @@ def drawLink(ax, x1, y1, z1, link_length, joint_type, orientation, self_angle, p
     RX, RY, RZ = self_angle_adj
     x2, y2, z2 = Rot(RX, RY, RZ).dot(LinkArray)
     
-    RX, RY, RZ = previous_angle
-    x2, y2, z2 = Rot(RX, RY, RZ).dot(np.array([x2, y2, z2])) + np.array([x1, y1, z1])
+    for angle in previous_angle:
+        
+        RX, RY, RZ = angle
+        x2, y2, z2 = Rot(RX, RY, RZ).dot(np.array([x2, y2, z2]))
+        
+    x2, y2, z2 = np.array([x2, y2, z2]) + np.array([x1, y1, z1])
     
     origin = np.array([x1, y1, z1])
     vector = np.array([x2 - x1, y2 - y1, z2 - z1])
@@ -333,16 +346,20 @@ def drawLink(ax, x1, y1, z1, link_length, joint_type, orientation, self_angle, p
 
 def kinematics_diagram(ax, frame_list):
     
+    frame_positions = []
+    
     ############################################################################################################
     # Frame One:
     
-    frameOne = frame_list[0]
+    frameOne       = frame_list[0]
     
-    orientation = frameOne[3]
-    self_angle = frameOne[4]
-    previous_angle = (0,0,0)
+    orientation    = frameOne[3]
+    self_angle     = frameOne[4]
+    previous_angle = [(0,0,0)]
     
     x, y, z = frameOne[0], frameOne[1], frameOne[2]
+    
+    frame_positions.append([x,y,z, self_angle])
     
     ax.text(x, y, z, 'Frame 1', (0,0,0))
 
@@ -367,6 +384,8 @@ def kinematics_diagram(ax, frame_list):
     link_length = frameOne[6]
     x, y, z = drawLink(ax, x, y, z, link_length, frameOne[5], orientation, self_angle, previous_angle)
     
+    frame_positions.append([x,y,z, self_angle])
+    
     if (len(frame_list) > 1):
         ax.text(x, y, z, 'Frame 2', (0,0,0))
             
@@ -377,7 +396,9 @@ def kinematics_diagram(ax, frame_list):
         if (n > 0):
             
             previous_angle_add = mov_dir(orientation, self_angle)
-            previous_angle = tuple(map(operator.add, previous_angle_add, previous_angle))
+            
+            #previous_angle = tuple(map(operator.add, previous_angle_add, previous_angle))
+            previous_angle.append(previous_angle_add)
                                             
             orientation = frame[1]
             self_angle = frame[2]
@@ -403,13 +424,15 @@ def kinematics_diagram(ax, frame_list):
             link_length = frame[0]
             x, y, z = drawLink(ax, x, y, z, link_length, frame[3], orientation, self_angle, previous_angle)
             
+            frame_positions.append([x,y,z, self_angle])
+            
         if (n + 1 < len(frame_list)):
             ax.text(x, y, z, 'Frame {}'.format(n+2), (0,0,0))
                 
         if (n + 1 == len(frame_list)):
             ax.text(x, y, z, 'End Effector', (0,0,0))
             
-    return x, y, z
+    return x, y, z, frame_positions
 
 ####################################################################################################################
 def config_axis(ax):
